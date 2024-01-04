@@ -82,7 +82,8 @@ let s:sqlserver = {
 let s:mysql_foreign_key_query =  "
       \ SELECT referenced_table_name, referenced_column_name, referenced_table_schema
       \ from information_schema.key_column_usage
-      \ where referenced_table_name is not null and column_name = '{col_name}' LIMIT 1"
+      \ where referenced_table_name is not null and column_name = '{col_name}' 
+      \ and table_schema = (SELECT DATABASE()) LIMIT 1"
 let s:mysql = {
       \ 'foreign_key_query': s:mysql_foreign_key_query,
       \ 'schemes_query': 'SELECT schema_name FROM information_schema.schemata',
