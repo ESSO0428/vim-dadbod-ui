@@ -5,7 +5,14 @@ function! db_ui#dbout#jump_to_foreign_table() abort
   if empty(scheme)
     return db_ui#notifications#error(parsed.scheme.' scheme not supported for foreign key jump.')
   endif
-
+  let content = join(readfile(b:db_input), "\n")
+  let content = substitute(content, '`', '', 'g')
+  
+  let b:dbname = '(SELECT DATABASE())'
+  if match(content, '\vfrom\s+(\w+)\.\w+', 'i') >= 0
+    let b:dbname = matchstr(content, '\vfrom\s+\zs\w+\ze\.\w+', 'i')
+    let b:dbname = "'" . b:dbname . "'"
+  endif
   let cell_line_number = s:get_cell_line_number(scheme)
   let cell_range = s:get_cell_range(cell_line_number, getcurpos(), scheme)
 
@@ -15,6 +22,7 @@ function! db_ui#dbout#jump_to_foreign_table() abort
   let field_value = trim(getline('.')[cell_range.from : cell_range.to])
 
   let foreign_key_query = substitute(scheme.foreign_key_query, '{col_name}', field_name, '')
+  let foreign_key_query = substitute(foreign_key_query, '{database_name}', b:dbname, '')
   let Parser = get(scheme, 'parse_virtual_results', scheme.parse_results)
   let result = Parser(db_ui#schemas#query(db_url, scheme, foreign_key_query), 3)
 
