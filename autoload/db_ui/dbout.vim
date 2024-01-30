@@ -7,6 +7,7 @@ function! db_ui#dbout#jump_to_foreign_table() abort
   endif
   let content = join(readfile(b:db_input), "\n")
   let content = substitute(content, '`', '', 'g')
+  let content = substitute(content, '\v(--|#).*$','','g')
   
   let b:dbname = '(SELECT DATABASE())'
   if match(content, '\vfrom\s+(\w+)\.\w+', 'i') >= 0
